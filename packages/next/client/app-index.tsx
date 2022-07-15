@@ -29,27 +29,27 @@ __webpack_require__.u = (chunkId: any) => {
 // @ts-expect-error TODO: fix type
 self.__next_require__ = __webpack_require__
 
-// eslint-disable-next-line no-undef
-;(self as any).__next_chunk_load__ = (chunk: string) => {
-  if (!chunk) return Promise.resolve()
-  if (chunk.endsWith('.css')) {
-    const existingTag = document.querySelector(`link[href="${chunk}"]`)
-    if (!existingTag) {
-      const link = document.createElement('link')
-      link.rel = 'stylesheet'
-      link.href = '/_next/' + chunk
-      document.head.appendChild(link)
-    }
-    return Promise.resolve()
-  }
-
-  const [chunkId, chunkFileName] = chunk.split(':')
-  chunkFilenameMap[chunkId] = `static/chunks/${chunkFileName}.js`
-
-  // @ts-ignore
   // eslint-disable-next-line no-undef
-  return __webpack_chunk_load__(chunkId)
-}
+  ; (self as any).__next_chunk_load__ = (chunk: string) => {
+    if (!chunk) return Promise.resolve()
+    if (chunk.endsWith('.css')) {
+      const existingTag = document.querySelector(`link[href="${chunk}"]`)
+      if (!existingTag) {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = '/_next/' + chunk
+        document.head.appendChild(link)
+      }
+      return Promise.resolve()
+    }
+
+    const [chunkId, chunkFileName] = chunk.split(':')
+    chunkFilenameMap[chunkId] = `static/chunks/${chunkFileName}.js`
+
+    // @ts-ignore
+    // eslint-disable-next-line no-undef
+    return __webpack_chunk_load__(chunkId)
+  }
 
 export const version = process.env.__NEXT_VERSION
 
@@ -64,7 +64,11 @@ function renderReactElement(
   const reactEl = fn()
   if (!reactRoot) {
     // Unlike with createRoot, you don't need a separate root.render() call here
-    reactRoot = (ReactDOMClient as any).hydrateRoot(domEl, reactEl)
+    reactRoot = requestIdleCallback(() => {
+      (React as any)?.startTransition?.(() => {
+        (ReactDOMClient as any).hydrateRoot(domEl, reactEl)
+      })
+    })
   } else {
     reactRoot.render(reactEl)
   }
