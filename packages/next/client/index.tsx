@@ -1051,6 +1051,6 @@ function Root({
 function Head({ callback }: { callback: () => void }): null {
   // We use `useLayoutEffect` to guarantee the callback is executed
   // as soon as React flushes the update.
-  React.useLayoutEffect(() => callback(), [callback])
+  React.useInsertionEffect?.(() => callback(), [callback])
   return null
 }
